@@ -1,7 +1,8 @@
-#
-# both the Socket module and the Options module use these, so i had to 
-# refactor the exceptions out
-#
+"""
+a common place to define the package's exception classes. they are used in
+several modules, so i had to refactor them out in order to avoid cyclic
+importing
+"""
 import errno
 
 
@@ -28,10 +29,15 @@ class ConnectError(SocketError):
 class AlreadyConnectedError(ConnectError):
     pass
 
+class AddressError(IOError):
+    pass
+
 
 #
 # all sorts of timeout errnos (not all are treated correctly by _socket)
 #
-timeout_errnos = set(getattr(errno, name, None) 
+timeout_errnos = set(getattr(errno, name, None)
     for name in ("EAGAIN", "EWOULDBLOCK", "WSAEWOULDBLOCK", "WSAETIMEDOUT"))
 timeout_errnos.discard(None)
+
+

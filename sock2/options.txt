@@ -1,20 +1,20 @@
-/* 
+/*
  * I (manually) extracted these from socketmodule.c, for a reference
  */
- 
+
  AF_UNSPEC
  AF_INET
  AF_INET6
  AF_UNIX
  AF_AX25
- AF_IPX 
+ AF_IPX
  AF_APPLETALK
  AF_NETROM
  AF_BRIDGE
  AF_ATMPVC
  AF_AAL5
  AF_X25
- AF_INET6 
+ AF_INET6
  AF_ROSE
  AF_DECnet
  AF_NETBEUI

@@ -49,12 +49,13 @@ class Socket(SocketLevelOptions):
         for k, v in kw.iteritems():
             setattr(obj, k, v)
         return obj
-
+    
     def close(self):
         """closes the socket"""
         if not self.closed:
             self._sock.close()
             self._sock = closed_socket
+    
     def fileno(self):
         return self._sock.fileno()
     
@@ -69,7 +70,7 @@ class Socket(SocketLevelOptions):
         self._sock.setblocking(bool(value))
     blocking = property(_get_blocking, _set_blocking, doc = 
         "gets or sets the socket's blocking mode (bool)")
-
+    
     def _get_timeout(self):
         return self._sock.gettimeout()
     def _set_timeout(self, value):
@@ -79,7 +80,8 @@ class Socket(SocketLevelOptions):
         "None means infinite timeout (blocking)")
     
     def shutdown(self, mode = "rw"):
-        """shuts down the socket, for reading, writing or both"""
+        """shuts down the socket, for reading, writing or both. mode must be
+        one of ('r', 'w', 'rw')"""
         if   mode == "r":
             self._sock.shutdown(_socket.SHUT_RD)
         elif mode == "w":
@@ -88,7 +90,7 @@ class Socket(SocketLevelOptions):
             self._sock.shutdown(_socket.SHUT_RDWR)
         else:
             raise ValueError("mode can be 'r', 'w', or 'rw'")
-
+    
     def bind(self, local_endpoint):
         """binds the socket to the given local endpoint"""
         if self._is_bound:
@@ -103,7 +105,7 @@ class Socket(SocketLevelOptions):
             else:
                 raise BindError(errno, info)
         self._is_bound = True
-
+    
     def _get_sockname(self):
         if not self._is_bound:
             raise NotBoundError()
@@ -124,7 +126,7 @@ class ListenerSocket(Socket):
         self._backlog = backlog
         if local_endpoint is not None:
             self.bind(local_endpoint)
-
+    
     def _get_backlog(self):
         return self._backlog
     def _set_backlog(self, value):
@@ -134,7 +136,7 @@ class ListenerSocket(Socket):
         self._backlog = value
     backlog = property(_get_backlog, _set_backlog, doc = 
         "gets or sets the socket's listen-backlog (int)")
-
+    
     def bind(self, local_endpoint):
         """binds the socket and listens"""
         Socket.bind(self, local_endpoint)
@@ -193,7 +195,7 @@ class ConnectedSocket(Socket):
         return self._sock.getpeername()
     remote_endpoint = property(_get_peername, doc = 
         "the socket's remote endpoint")
-
+    
     def recv(self, count):
         """receives data from the socket. the length of the recv()ed data
         may be less than or equal to `count`"""
@@ -211,7 +213,7 @@ class ConnectedSocket(Socket):
         if not data:
             raise EOFError()
         return data
-
+    
     def send(self, data):
         """sends the given data over the socket, returns the number of bytes
         actually transmitted"""
@@ -272,9 +274,9 @@ class TcpConnectedSocket(ConnectedSocket, IpLevelMixin, TcpLevelMixin):
     __slots__ = []
     def __init__(self, *endpoint, **kw):
         remote_endpoint = endpoint or None
-        family = kw.pop("family", Consts.AddressFamily.INET)
-        ConnectedSocket.__init__(self, family, Consts.SocketType.STREAM, 
-            Consts.IpProtocol.TCP, remote_endpoint, **kw)
+        family = kw.pop("family", consts.AddressFamily.INET)
+        ConnectedSocket.__init__(self, family, consts.SocketType.STREAM, 
+            consts.IpProtocol.TCP, remote_endpoint, **kw)
 
 
 class TcpListenerSocket(ListenerSocket, IpLevelMixin, TcpLevelMixin):
@@ -282,9 +284,9 @@ class TcpListenerSocket(ListenerSocket, IpLevelMixin, TcpLevelMixin):
     __slots__ = []
     def __init__(self, *endpoint, **kw):
         local_endpoint = endpoint or None
-        family = kw.pop("family", Consts.AddressFamily.INET)
-        ListenerSocket.__init__(self, family, Consts.SocketType.STREAM, 
-            Consts.IpProtocol.TCP, local_endpoint, **kw)
+        family = kw.pop("family", consts.AddressFamily.INET)
+        ListenerSocket.__init__(self, family, consts.SocketType.STREAM, 
+            consts.IpProtocol.TCP, local_endpoint, **kw)
     
     def accept(self):
         return TcpConnectedSocket.wrap(
@@ -299,10 +301,9 @@ class UdpSocket(DatagramSocket, IpLevelMixin):
     __slots__ = []
     def __init__(self, *endpoint, **kw):
         local_endpoint = endpoint or None
-        family = kw.pop("family", Consts.AddressFamily.INET)
-        DatagramSocket.__init__(self, family, Consts.SocketType.DGRAM, 
-            Consts.IpProtocol.UDP, local_endpoint, **kw)
-
+        family = kw.pop("family", consts.AddressFamily.INET)
+        DatagramSocket.__init__(self, family, consts.SocketType.DGRAM, 
+            consts.IpProtocol.UDP, local_endpoint, **kw)
 
 
 
